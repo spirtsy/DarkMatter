@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>G7External Menu</title>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: fixed header bar, left nav rail with hard edges, content grid of hairline panels, status strip at the bottom. Pure black, white ink, grey rules. */
+:root{
+  --bg:#000000; --panel:#070707; --raised:#0F0F0F; --control:#161616;
+  --rule:#1F1F1F; --rule-strong:#2E2E2E;
+  --ink:#FFFFFF; --ink-2:#A3A3A3; --ink-3:#5C5C5C;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:3px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:13px;line-height:1.35;padding-block:0;padding-inline:0;overflow:hidden}
+button,input{font:inherit;color:inherit;background:none;border:0}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+.mono{font-family:var(--mono)}
+.app{display:grid;grid-template-rows:44px 1fr 28px;grid-template-columns:224px 1fr;height:100%;background:var(--bg);transform-origin:top left}
+/* header */
+.hdr{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:0 16px;border-bottom:1px solid var(--rule);background:var(--bg)}
+.hdr .mark{width:34px;height:23px;display:block}
+.hdr .wm{font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.14em}
+.hdr .wm span{color:var(--ink-3);font-weight:400}
+.hdr .build{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.06em;padding-left:14px;border-left:1px solid var(--rule)}
+.hdr .spacer{flex:1}
+.hdr .ro{font-family:var(--mono);font-size:10px;color:var(--ink-2);letter-spacing:.06em;display:flex;gap:16px}
+.hdr .ro b{color:var(--ink);font-weight:500}
+.hdr .dot{width:6px;height:6px;background:var(--ink);display:inline-block;margin-right:6px;vertical-align:1px}
+/* nav */
+.nav{border-right:1px solid var(--rule);display:flex;flex-direction:column;min-height:0;background:var(--bg)}
+.nav .search{margin:14px 12px 8px;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border:1px solid var(--rule-strong);background:var(--control);border-radius:var(--r)}
+.nav .search svg{flex:none;color:var(--ink-3)}
+.nav .search input{flex:1;min-width:0;font-size:12px}
+.nav .search input::placeholder{color:var(--ink-3)}
+.nav .search kbd{font-family:var(--mono);font-size:9px;color:var(--ink-3);border:1px solid var(--rule-strong);padding:1px 4px;border-radius:2px}
+.nav .sec{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--ink-3);padding:12px 16px 4px}
+.nav .item{display:flex;align-items:center;gap:10px;height:34px;padding:0 14px;color:var(--ink-2);font-weight:500;border-left:2px solid transparent;width:100%;text-align:left;font-size:13px}
+.nav .item svg{color:var(--ink-3)}
+.nav .item:hover{color:var(--ink);background:var(--panel)}
+.nav .item.on{color:var(--ink);border-left-color:var(--ink);background:var(--raised)}
+.nav .item.on svg{color:var(--ink)}
+.nav .item .n{margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--ink-3)}
+.nav .grow{flex:1}
+.nav .me{position:relative;border-top:1px solid var(--rule);padding:12px;display:flex;align-items:center;gap:10px;width:100%;text-align:left}
+.nav .me:hover{background:var(--panel)}
+.nav .me img{width:36px;height:36px;object-fit:cover;border:1px solid var(--rule-strong);filter:grayscale(1) contrast(1.15)}
+.nav .me .who{display:flex;flex-direction:column;gap:2px;min-width:0}
+.nav .me .who b{font-weight:600;font-size:13px}
+.nav .me .who i{font-style:normal;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--ink-3)}
+.nav .me .st{margin-left:auto;width:6px;height:6px;background:var(--ink)}
+.pop{position:absolute;left:12px;bottom:66px;width:200px;background:var(--raised);border:1px solid var(--rule-strong);border-radius:var(--r);padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.8);z-index:5}
+.pop .ph{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--ink-3);padding:6px 8px 4px}
+.pop .pr{display:flex;align-items:center;gap:10px;height:32px;padding:0 8px;width:100%;text-align:left;color:var(--ink);border-radius:2px;font-weight:500}
+.pop .pr:hover{background:var(--control)}
+.pop .pr svg:first-child{color:var(--ink-2)}
+.pop .pr .v{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.pop .pr.danger{color:var(--ink-2)}
+/* main */
+.main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.tabs{display:flex;align-items:flex-end;gap:2px;padding:0 20px;border-bottom:1px solid var(--rule);height:42px;flex:none;overflow-x:auto}
+.tabs .crumb{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-3);padding:0 14px 13px 0;white-space:nowrap}
+.tabs .tab{display:flex;align-items:center;gap:7px;padding:0 12px 12px;color:var(--ink-2);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;font-size:13px}
+.tabs .tab svg{color:var(--ink-3)}
+.tabs .tab:hover{color:var(--ink)}
+.tabs .tab.on{color:var(--ink);border-bottom-color:var(--ink)}
+.tabs .tab.on svg{color:var(--ink)}
+.content{flex:1;overflow:auto;padding:18px 20px 24px;min-height:0}
+.grid{display:grid;gap:14px;align-items:start}
+.grid.c1{grid-template-columns:1fr}.grid.c2{grid-template-columns:1fr 1fr}.grid.c3{grid-template-columns:1fr 1fr 1fr}
+.grid+.grid{margin-top:14px}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:var(--r);min-width:0}
+.panel .ph{display:flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-2)}
+.panel .ph svg{color:var(--ink-3)}
+.panel .ph .cnt{margin-left:auto;color:var(--ink-3)}
+.panel .pb{padding:2px 14px 6px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px;padding:5px 0;border-bottom:1px solid var(--rule)}
+.row:last-child{border-bottom:0}
+.row .lab{display:flex;flex-direction:column;gap:3px;min-width:0}
+.row .lt{display:flex;align-items:center;gap:8px;color:var(--ink-2);font-weight:500;white-space:nowrap}
+.row.on .lt{color:var(--ink)}
+.row.dim .lt{color:var(--ink-3)}
+.row .sub{font-size:11.5px;color:var(--ink-3)}
+.row .ctl{display:flex;align-items:center;gap:8px;flex:none}
+.row.dim .ctl{opacity:.45}
+.row.hide{display:none}
+/* controls */
+.tg{width:36px;height:18px;border:1px solid var(--rule-strong);background:var(--control);border-radius:2px;position:relative;flex:none;transition:background .12s}
+.tg::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--ink-3);transition:transform .12s,background .12s}
+.tg.on{background:var(--ink);border-color:var(--ink)}
+.tg.on::after{background:#000;transform:translateX(18px)}
+.sl{display:flex;align-items:center;gap:10px}
+.sl .v{font-family:var(--mono);font-size:11px;min-width:40px;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+.sl input[type=range]{-webkit-appearance:none;appearance:none;width:110px;height:14px;background:transparent;cursor:pointer}
+.sl input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(to right,var(--ink) 0 var(--p),var(--rule-strong) var(--p) 100%)}
+.sl input[type=range]::-moz-range-track{height:2px;background:var(--rule-strong)}
+.sl input[type=range]::-moz-range-progress{height:2px;background:var(--ink)}
+.sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--ink);margin-top:-4px;border-radius:1px}
+.sl input[type=range]::-moz-range-thumb{width:10px;height:10px;background:var(--ink);border:0;border-radius:1px}
+.sl.w150 input[type=range]{width:150px}.sl.w80 input[type=range]{width:80px}
+.dd{position:relative}
+.dd>button{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:104px;height:28px;padding:0 8px 0 10px;border:1px solid var(--rule-strong);background:var(--control);border-radius:var(--r);font-weight:500;font-size:12px}
+.dd>button svg{color:var(--ink-3)}
+.dd .menu{position:absolute;right:0;top:calc(100% + 4px);min-width:100%;background:var(--raised);border:1px solid var(--rule-strong);border-radius:var(--r);padding:4px;z-index:4;box-shadow:0 14px 30px rgba(0,0,0,.7)}
+.dd .menu button{display:block;width:100%;text-align:left;padding:6px 8px;border-radius:2px;color:var(--ink-2);font-size:12px;white-space:nowrap}
+.dd .menu button:hover{background:var(--control);color:var(--ink)}
+.dd .menu button.sel{color:var(--ink)}
+.key{font-family:var(--mono);font-size:11px;min-width:92px;height:28px;padding:0 10px;border:1px solid var(--rule-strong);background:var(--control);border-radius:var(--r);color:var(--ink-2);letter-spacing:.04em}
+.key.listen{border-color:var(--ink);color:var(--ink);animation:blink 1s steps(2) infinite}
+.key.set{color:var(--ink)}
+@keyframes blink{50%{border-color:var(--rule-strong)}}
+.chip{font-family:var(--mono);font-size:10px;letter-spacing:.08em;width:76px;height:28px;border:1px solid var(--rule-strong);background:var(--control);border-radius:var(--r);color:var(--ink-3)}
+.chip.HOLD{color:var(--ink);border-color:var(--ink-2)}
+.chip.TOGGLE{background:var(--ink);color:#000;border-color:var(--ink)}
+.btn{height:32px;padding:0 16px;border-radius:var(--r);font-weight:600;font-size:12px;border:1px solid var(--ink);background:var(--ink);color:#000}
+.btn:hover{background:#e6e6e6}
+.btn.ghost{background:var(--control);color:var(--ink-2);border-color:var(--rule-strong)}
+.btn.ghost:hover{color:var(--ink);border-color:var(--ink-2)}
+.btn.wide{width:100%;margin:8px 0}
+.badge{font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:2px 6px;border:1px solid var(--ink);border-radius:2px;color:var(--ink)}
+.badge.soon{border-color:var(--rule-strong);color:var(--ink-3)}
+.sw{width:18px;height:18px;border:1px solid var(--rule-strong);border-radius:2px;flex:none}
+.seg{display:flex;gap:6px;padding:8px 0}
+.seg button{flex:1;height:30px;border:1px solid var(--rule-strong);background:var(--control);color:var(--ink-2);border-radius:var(--r);font-weight:500;font-size:12px}
+.seg button.on{background:var(--ink);color:#000;border-color:var(--ink)}
+.psearch{display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;margin:8px 0;border:1px solid var(--rule-strong);background:var(--control);border-radius:var(--r)}
+.psearch svg{color:var(--ink-3)}
+.psearch input{flex:1;min-width:0;font-size:12px}
+.psearch input::placeholder{color:var(--ink-3)}
+.empty{padding:26px 0 18px;text-align:center;color:var(--ink-3);font-size:12px}
+.empty.tall{padding:40px 0}
+.lbl{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--ink-3);padding:12px 0 2px}
+.more{color:var(--ink-3)}
+.cards{display:flex;flex-direction:column;gap:8px;padding:10px 0 4px}
+.card{display:flex;align-items:center;gap:14px;padding:10px 12px 10px 0;background:var(--raised);border:1px solid var(--rule);border-radius:var(--r)}
+.card .bar{width:3px;align-self:stretch;background:var(--ink)}
+.card .ct{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.card .ct b{font-weight:600;font-size:13px}
+.card .ct span{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.06em}
+.card.hide{display:none}
+.plist{display:flex;flex-direction:column;padding:4px 0}
+.plist button{display:flex;align-items:center;gap:10px;height:34px;padding:0 6px;width:100%;text-align:left;border-radius:2px;color:var(--ink-2)}
+.plist button:hover,.plist button.sel{background:var(--control);color:var(--ink)}
+.plist button .d{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+.plist button.hide{display:none}
+.detail{padding:8px 0 4px}
+.detail .kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--rule);font-size:12px;color:var(--ink-2)}
+.detail .kv b{font-family:var(--mono);font-weight:500;color:var(--ink);font-size:11px}
+.detail .acts{display:flex;gap:8px;padding-top:10px}
+.sub2{padding:10px 0 2px}.sub2 b{display:block;font-weight:600}.sub2 span{font-size:11px;color:var(--ink-3)}
+.layout{display:flex;gap:8px;justify-content:center;align-items:center;padding:24px 8px;background:var(--bg);border:1px solid var(--rule);border-radius:var(--r);margin-top:8px}
+.mon{width:100px;height:58px;border:1px solid var(--rule-strong);background:var(--raised);border-radius:2px;padding:6px 8px;display:flex;flex-direction:column;position:relative;text-align:left}
+.mon b{font-size:12px}.mon span{font-family:var(--mono);font-size:9px;color:var(--ink-3)}
+.mon.m-proj{border-color:var(--ink);border-width:2px}.mon.m-out{border-color:var(--ink-2);border-width:2px}.mon.m-in{border-color:#4a4a4a;border-width:2px}
+.mon em{position:absolute;top:5px;right:5px;font-style:normal;font-family:var(--mono);font-size:7px;letter-spacing:.08em;padding:1px 4px;background:var(--ink);color:#000}
+.legend{display:flex;gap:18px;padding:10px 2px 0;font-size:11px;color:var(--ink-2)}
+.legend span{display:flex;align-items:center;gap:6px}.legend u{width:7px;height:7px;display:inline-block}
+.hint{font-family:var(--mono);font-size:10px;color:var(--ink-3);padding:6px 0 0;letter-spacing:.04em}
+/* status strip */
+.status{grid-column:1/-1;border-top:1px solid var(--rule);display:flex;align-items:center;gap:18px;padding:0 16px;font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em;overflow:hidden;white-space:nowrap}
+.status b{color:var(--ink);font-weight:500}
+.status .sp{flex:1}
+/* search results */
+.results .hit{display:flex;align-items:center;gap:10px;height:38px;padding:0 8px;width:100%;text-align:left;border-bottom:1px solid var(--rule);color:var(--ink)}
+.results .hit:hover{background:var(--control)}
+.results .hit .path{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.06em;margin-left:auto;white-space:nowrap}
+/* toast */
+.toast{position:fixed;left:50%;bottom:44px;transform:translateX(-50%) translateY(10px);background:var(--ink);color:#000;font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:8px 14px;border-radius:2px;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:9}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:820px){
+  body{overflow:auto}
+  .app{grid-template-columns:1fr;grid-template-rows:44px auto 1fr 28px;height:auto;min-height:100%}
+  .nav{border-right:0;border-bottom:1px solid var(--rule);flex-direction:row;flex-wrap:wrap;align-items:center;padding:6px 8px}
+  .nav .search{margin:4px;flex:1 1 100%}
+  .nav .sec{display:none}
+  .nav .item{width:auto;height:30px;border-left:0;border-bottom:2px solid transparent;padding:0 10px}
+  .nav .item.on{border-bottom-color:var(--ink);background:none}
+  .nav .item .n{display:none}
+  .nav .grow{display:none}
+  .nav .me{border-top:0;width:auto;margin-left:auto;padding:4px}
+  .nav .me .who,.nav .me .st{display:none}
+  .pop{left:auto;right:8px;bottom:auto;top:100%}
+  .grid.c2,.grid.c3{grid-template-columns:1fr}
+  .content{overflow:visible}
+  .hdr .ro{display:none}
+}
+</style>
+
+<div class="app" id="app">
+  <header class="hdr">
+    <svg class="mark" viewBox="0 0 700 466" aria-hidden="true"><path id="logoPath" fill="currentColor" fill-rule="evenodd" d="M343.8 443.2C339.8 435.4 338.0 430.6 337.4 426.4C336.8 421.1 336.6 420.8 335.8 423.2C332.6 432.7 331.5 413.1 334.5 399.5C335.2 396.2 326.6 410.0 322.7 418.2C319.8 424.5 319.7 424.4 316.0 414.8L312.8 406.5L314.6 401.5C315.5 398.8 318.4 391.2 321.0 384.8C323.6 378.3 325.6 373.0 325.4 373.0C325.3 373.0 323.0 376.0 320.4 379.8C313.6 389.5 306.7 397.5 306.2 396.2C306.0 395.5 303.9 396.5 301.2 398.6C296.6 402.1 282.2 409.6 281.5 408.8C281.3 408.6 286.8 399.2 293.8 388.0C300.8 376.7 307.9 365.2 309.4 362.5L312.3 357.5L305.4 364.1C295.5 373.5 286.7 379.4 289.0 375.0C290.3 372.6 290.2 372.6 285.9 374.4C281.1 376.4 272.3 377.2 267.0 376.2L262.5 375.4L268.0 372.5C280.9 365.9 302.0 349.5 310.1 339.9C315.5 333.4 316.0 334.2 316.0 350.0C316.1 362.0 316.1 362.4 317.8 360.3C318.7 359.2 325.8 349.4 333.5 338.6C341.2 327.9 347.7 319.1 348.0 319.0C348.3 319.0 349.8 323.8 351.3 329.8C352.9 335.7 356.1 346.4 358.4 353.5L362.7 366.5L363.9 362.3C365.8 355.6 371.0 344.0 374.6 338.2L378.0 332.9L386.8 341.8C398.3 353.5 419.2 368.9 428.8 372.9C438.3 376.9 419.9 378.0 409.8 374.1C406.9 373.0 406.2 373.8 408.2 375.8C409.0 376.6 409.0 377.0 408.3 377.0C406.7 377.0 398.1 370.3 391.2 363.6C387.8 360.3 385.0 357.9 385.0 358.3C385.0 358.7 392.2 370.1 401.1 383.6C409.9 397.1 417.0 408.4 416.8 408.5C416.6 408.7 412.9 407.1 408.5 404.9C394.5 398.1 384.8 389.4 374.8 375.0C373.9 373.6 375.3 377.9 377.9 384.5C380.5 391.1 383.5 398.8 384.4 401.5L386.2 406.5L383.0 414.8C379.3 424.4 379.1 424.5 376.1 418.2C373.1 412.0 364.8 397.8 364.4 398.2C364.3 398.4 364.6 400.6 365.1 403.0C367.5 413.2 366.2 429.8 363.5 423.4C362.4 420.5 362.3 420.6 361.6 425.9C360.9 431.2 356.9 441.0 351.8 449.8L349.3 454.0L343.8 443.2ZM361.5 339.7C358.9 308.5 373.3 274.6 404.6 238.0C405.7 236.7 403.4 236.5 384.7 236.5L363.5 236.5L356.8 243.1C353.0 246.8 350.0 249.2 350.0 248.6C350.0 246.0 356.6 233.8 362.9 225.0C366.7 219.8 370.3 214.5 370.9 213.2L372.1 211.0L374.3 213.1C382.6 221.1 412.4 222.3 430.4 215.4C431.2 215.1 429.5 218.4 426.6 222.7C410.3 247.0 393.0 285.7 393.0 297.6C393.0 301.1 395.1 304.9 397.3 305.6C398.9 306.1 398.4 306.7 394.1 309.0C382.4 315.4 372.6 326.3 366.0 340.4L362.2 348.3L361.5 339.7ZM322.0 328.8C322.0 320.0 321.6 314.0 321.0 314.0C320.5 314.0 316.1 317.8 311.3 322.5C304.4 329.3 302.4 330.7 301.8 329.5C297.5 321.9 284.7 310.9 273.9 305.6L265.3 301.4L268.6 297.8C273.6 292.3 274.0 289.3 274.0 258.8C274.0 230.3 273.7 227.7 269.9 224.1C268.7 223.0 267.8 221.9 268.1 221.8C268.3 221.6 271.0 220.2 274.0 218.6C283.8 213.5 293.0 206.8 302.4 197.9L311.6 189.2L313.5 192.7C318.1 201.1 333.7 211.5 343.9 212.9L348.9 213.5L342.3 221.0C338.7 225.1 332.8 232.3 329.2 236.9L322.5 245.2L322.2 236.2L321.9 227.1L316.6 224.2C313.7 222.5 308.9 219.0 305.9 216.2L300.5 211.2L297.2 213.9L294.0 216.6L294.0 255.8C294.0 277.4 294.4 295.0 294.8 295.0C295.3 295.0 299.6 298.2 304.4 302.0L313.1 309.0L317.6 305.8L322.0 302.7L322.0 286.8L322.0 270.9L317.8 269.0C312.9 266.8 309.4 266.5 305.3 268.0C303.2 268.8 304.9 266.7 311.7 259.9L320.8 250.7L327.6 252.9C331.4 254.1 338.1 255.4 342.7 255.7L350.9 256.3L347.9 259.8C343.4 264.9 343.0 266.8 343.0 283.1C343.0 299.1 343.6 301.5 347.7 303.1L350.2 304.0L345.7 307.5C339.8 312.0 334.7 319.1 327.8 332.5L322.1 343.5L322.0 328.8ZM420.0 297.5C411.1 292.7 405.7 287.3 406.5 284.0C409.8 270.3 430.5 230.0 444.6 209.8C447.6 205.5 450.0 201.9 450.0 201.6C450.0 201.4 446.5 202.6 442.2 204.2C404.8 218.8 373.6 214.6 370.3 194.7L369.7 190.9L365.1 195.3C353.9 206.2 341.8 205.4 327.6 192.9L323.0 188.8L326.0 185.4C332.4 178.1 335.9 167.4 334.0 161.4C330.8 151.8 318.0 151.5 311.2 160.9C308.4 164.7 308.2 164.8 307.6 162.7C305.2 153.6 309.4 143.5 317.2 139.4C319.3 138.3 320.0 137.2 320.0 135.0C320.0 126.3 337.7 118.0 356.5 118.0C368.2 118.0 376.7 116.6 385.7 113.1L393.0 110.2L391.2 113.2C387.3 120.0 372.6 130.8 367.0 131.0C366.2 131.1 367.5 131.8 370.0 132.6C374.4 134.1 386.9 142.7 387.0 144.2C387.0 144.7 384.6 145.0 381.7 145.0L376.3 145.0L386.2 155.2C397.7 167.3 397.6 167.0 390.1 167.0L384.2 167.0L388.0 170.8C390.6 173.4 392.3 176.4 393.5 180.3C397.0 192.3 401.2 194.2 410.6 188.2C424.2 179.4 437.0 157.2 437.0 142.3C437.0 140.7 439.3 137.8 444.5 132.9C456.6 121.4 466.9 103.8 470.5 88.5C472.9 78.6 473.1 78.0 474.0 81.0C476.3 88.5 474.7 104.8 470.7 114.2C468.5 119.5 469.2 119.1 481.1 109.6C511.7 85.0 557.0 28.7 557.0 15.1C557.0 11.2 558.9 16.0 559.4 21.2C560.6 32.9 556.3 50.0 549.4 60.1C546.0 65.2 546.0 65.2 548.5 64.6C551.5 63.8 551.5 64.1 549.4 68.3C543.5 79.6 531.3 94.0 516.0 107.4L509.5 113.1L519.5 106.9C544.2 91.8 568.5 72.7 582.7 57.4C587.5 52.3 591.6 48.2 591.8 48.4C593.9 50.6 583.4 78.3 578.0 85.2C576.4 87.2 575.5 89.0 576.1 89.2C579.7 90.4 561.3 111.7 554.7 114.1C550.6 115.5 549.8 117.0 553.1 117.0C557.3 117.0 548.4 123.7 533.6 131.6C524.3 136.6 524.6 137.0 535.0 133.5C549.7 128.5 578.4 113.6 593.3 103.3C602.8 96.7 602.7 96.7 598.5 106.5C592.3 120.8 582.0 133.6 572.6 139.0C568.3 141.5 568.0 141.9 570.1 142.2C576.2 143.0 553.1 155.4 537.5 159.6L528.5 162.1L540.5 161.6C559.0 160.9 582.4 155.4 596.0 148.5C602.1 145.4 602.1 145.6 596.8 154.4C587.7 170.0 572.9 181.4 560.3 182.7C554.5 183.3 554.5 183.4 557.5 184.6L560.5 185.8L557.5 187.0C550.5 189.7 542.9 191.2 533.0 191.7L522.5 192.3L527.5 193.8C533.9 195.7 564.8 195.9 573.9 194.1C582.2 192.5 582.2 192.7 574.3 200.7C563.5 211.6 549.2 217.9 537.7 216.7C533.2 216.3 532.9 216.4 534.5 217.6C537.5 219.8 525.0 219.4 516.7 217.1C508.5 214.9 508.2 215.3 515.6 218.6C524.2 222.4 536.5 225.7 547.4 227.1L557.3 228.4L553.9 231.2C545.1 238.6 529.9 243.2 520.6 241.2L515.8 240.2L518.1 242.6L520.3 244.9L516.4 244.4C509.8 243.5 499.2 239.9 494.2 236.8L489.5 233.9L494.0 238.1C499.3 243.0 510.9 248.7 523.7 252.7C534.4 255.9 534.5 256.1 528.5 258.9C518.1 263.8 504.6 265.4 496.8 262.6C492.9 261.2 492.1 261.6 494.2 263.9C495.3 265.0 495.0 265.1 492.8 264.6C487.4 263.4 484.9 262.0 480.4 257.8C474.9 252.8 475.9 255.3 482.1 262.4C486.6 267.5 500.0 277.0 502.9 277.0C509.0 277.2 497.1 280.4 489.0 280.8C473.2 281.5 460.3 273.9 452.3 259.3L450.0 255.3L457.2 255.8C465.4 256.4 465.3 256.9 458.2 248.2L455.0 244.2L459.9 242.7C468.6 240.2 477.1 234.0 472.0 234.0C471.5 234.0 469.9 233.5 468.3 232.9L465.5 231.8L470.2 230.4C475.6 228.8 486.5 221.6 488.7 218.3C490.2 216.1 490.1 216.1 484.9 215.4L479.5 214.7L484.0 212.8C490.5 210.0 496.2 204.9 499.4 199.0C502.8 192.7 503.0 192.9 495.0 194.6C491.4 195.3 486.9 196.0 485.0 196.0L481.5 196.0L486.7 193.0C498.4 186.3 507.7 174.9 512.6 161.5C515.4 153.8 515.2 153.7 509.0 159.3C504.3 163.5 491.5 171.0 489.0 171.0C488.3 171.0 489.3 169.3 491.1 167.3C494.1 163.9 502.0 148.6 502.0 146.2C502.0 145.7 503.6 142.8 505.6 139.9C509.3 134.4 513.0 126.7 513.0 124.7C513.0 124.0 512.5 124.2 512.0 125.1C508.6 131.0 472.4 156.7 470.4 154.7C470.1 154.5 471.5 151.6 473.3 148.4C479.1 138.6 486.2 118.9 484.6 117.2C484.4 117.1 482.8 119.5 481.0 122.7C476.5 130.7 467.8 141.3 461.8 146.0C456.3 150.4 457.1 151.1 463.9 148.0C469.8 145.3 469.8 145.7 464.4 152.9C460.3 158.4 456.4 162.0 446.4 169.7L443.5 172.0L449.0 169.9C461.7 165.2 485.5 153.3 493.3 147.8C497.5 144.8 497.4 145.9 493.1 154.6C488.5 163.8 480.7 172.9 474.4 176.6C471.9 178.1 470.1 179.5 470.4 179.7C471.2 180.5 491.2 175.0 496.9 172.4C503.6 169.4 504.1 169.8 500.1 174.9C491.7 185.5 480.2 192.8 468.0 195.4L461.5 196.7L466.0 198.0C468.5 198.8 475.6 199.4 481.7 199.4C494.2 199.5 494.4 199.6 489.8 203.6C483.1 209.2 476.4 211.4 466.2 211.5L456.9 211.5L461.7 213.7C464.3 215.0 469.8 216.7 473.8 217.6L481.0 219.2L478.4 221.2C472.1 226.2 457.8 228.7 450.3 226.0L447.5 225.0L450.5 227.5C452.1 228.9 456.1 231.4 459.3 233.0C466.9 236.8 464.7 238.5 451.8 238.5L443.1 238.5L449.3 244.9L455.5 251.2L450.0 250.7C447.0 250.4 443.7 249.8 442.6 249.4C441.0 248.8 440.9 249.0 441.9 250.8C443.9 254.6 465.1 282.4 469.3 286.7C474.3 291.9 473.8 292.6 465.8 291.0C453.8 288.7 444.2 281.2 437.5 269.0C434.4 263.5 434.0 263.0 434.6 266.0C435.5 271.1 440.1 280.8 445.4 289.0C450.9 297.5 450.9 297.1 446.2 295.8C438.1 293.7 428.5 285.8 424.5 278.0C423.6 276.3 422.7 275.0 422.5 275.2C422.1 275.6 427.0 293.3 428.9 298.2C430.4 302.1 428.2 301.9 420.0 297.5ZM253.5 288.2C260.1 275.0 264.0 263.2 258.4 273.0C252.3 283.8 242.6 290.9 232.8 291.7L226.5 292.2L230.6 287.9C237.0 281.1 259.0 251.7 259.0 250.0C259.0 249.6 256.6 249.9 253.8 250.7C244.8 253.0 244.4 252.2 251.0 245.1C258.1 237.5 257.9 238.0 253.1 239.2C250.4 239.9 247.5 239.8 243.9 239.1C235.2 237.3 235.0 236.6 241.8 233.0C248.4 229.5 253.3 225.2 249.5 226.3C240.7 228.9 232.6 227.7 224.0 222.8L218.5 219.7L227.6 217.4C235.1 215.6 243.0 212.7 243.0 211.7C243.0 211.6 239.9 211.6 236.0 211.8C227.7 212.2 219.4 210.1 213.5 206.0C205.4 200.5 205.6 200.0 215.9 200.0C221.0 200.0 228.3 199.3 232.3 198.3L239.5 196.6L234.8 195.9C220.5 193.7 203.8 182.9 198.1 172.2C196.6 169.5 196.6 169.5 203.1 172.4C208.4 174.9 226.7 180.0 229.9 180.0C230.8 180.0 229.2 178.7 226.4 177.1C219.3 173.0 211.8 164.4 207.0 154.8C202.1 145.0 202.2 144.9 210.1 150.0C217.5 154.9 235.6 163.8 246.7 168.0C254.6 171.0 258.1 171.9 254.5 169.8C247.0 165.6 229.7 148.0 231.3 146.3C231.5 146.1 233.7 146.9 236.1 148.0C243.2 151.2 243.5 150.3 237.2 145.1C230.9 139.9 223.6 130.8 218.8 122.2C217.1 119.3 215.6 117.1 215.4 117.3C213.6 119.1 223.5 144.1 229.2 152.3C232.2 156.6 231.2 156.4 221.5 150.9C211.6 145.4 201.5 138.0 192.8 129.8C189.6 126.8 187.0 124.8 187.0 125.2C187.0 126.6 193.1 138.3 195.5 141.5C196.7 143.2 198.3 146.3 199.0 148.5C201.0 154.8 205.7 163.6 209.2 167.6C212.3 171.1 212.4 171.3 210.0 170.5C203.4 168.5 189.8 159.8 187.7 156.3C185.5 152.6 185.3 155.8 187.4 161.5C192.3 174.9 201.6 186.3 213.3 193.0L218.5 196.0L214.0 196.0C211.5 196.0 207.0 195.4 204.0 194.6C197.3 192.9 197.4 192.8 200.0 197.9C203.0 203.8 209.3 209.8 215.4 212.5L220.5 214.8L215.2 215.6L209.8 216.5L213.5 220.3C218.3 225.3 223.9 228.7 229.5 230.2C235.0 231.7 235.2 232.6 230.0 234.0C227.8 234.6 226.0 235.2 226.0 235.4C226.0 236.4 234.6 241.1 239.1 242.6C242.1 243.5 244.7 244.5 244.9 244.6C245.1 244.8 243.1 247.5 240.5 250.5C234.9 257.2 234.8 257.0 243.2 256.1C251.2 255.3 251.1 255.1 246.0 262.8C236.2 277.5 223.4 283.5 207.5 281.0C195.4 279.1 194.8 278.4 201.8 275.0C208.5 271.6 219.5 261.9 222.4 256.9L224.3 253.5L220.5 257.2C214.5 263.1 201.6 268.5 206.5 263.0C208.3 261.0 208.3 261.0 204.0 262.5C198.4 264.5 186.8 264.4 179.9 262.4C170.1 259.5 163.4 255.0 168.9 255.0C177.0 255.0 201.9 243.9 207.6 237.7C209.8 235.4 210.6 234.3 209.5 235.2C201.5 241.8 175.0 248.9 182.5 242.4C184.7 240.6 184.9 240.0 183.5 240.5C172.8 244.0 157.7 240.4 146.6 231.7L142.7 228.6L154.1 226.9C166.1 225.1 182.0 220.4 188.0 216.9C189.9 215.8 190.6 215.2 189.5 215.5C176.7 219.6 158.4 220.9 166.2 217.2C168.0 216.4 167.3 216.3 162.9 216.7C150.9 217.9 136.8 211.8 125.6 200.7C117.6 192.6 117.6 192.6 127.1 194.2C137.7 195.9 162.0 195.8 170.5 194.0L177.5 192.6L167.5 191.9C158.1 191.2 148.6 189.3 142.2 186.9L139.5 185.8L142.5 184.6C145.5 183.4 145.4 183.3 139.6 182.7C126.7 181.4 113.7 171.5 104.0 155.7C97.8 145.7 97.8 145.4 104.0 148.5C117.6 155.4 141.0 160.9 159.5 161.6L171.5 162.1L162.5 159.6C147.2 155.5 124.0 143.1 129.9 142.2C132.0 141.9 131.7 141.5 127.4 139.0C118.0 133.6 107.7 120.7 101.3 106.0C97.3 96.8 97.4 96.8 105.2 102.3C120.0 112.7 150.6 128.7 165.0 133.5C175.4 137.0 175.8 136.6 166.5 131.7C152.2 124.2 142.7 117.0 146.9 117.0C150.2 117.0 149.4 115.5 145.3 114.1C138.7 111.7 120.4 90.4 123.9 89.2C124.6 89.0 123.9 87.5 122.4 85.8C116.9 79.2 108.0 56.3 108.0 48.7C108.0 48.1 112.1 52.0 117.1 57.3C131.6 72.8 154.4 90.7 180.2 106.9C192.2 114.4 192.8 114.5 184.3 107.4C169.3 94.8 160.7 85.2 153.2 72.4C148.3 64.1 148.2 63.8 151.7 64.6L154.3 65.3L151.7 61.8C145.3 53.4 140.8 38.8 140.7 25.5C140.5 13.1 141.5 12.2 145.4 21.2C155.8 45.1 190.4 86.7 218.9 109.6C231.4 119.7 231.4 119.7 228.2 111.8C225.4 104.7 224.1 88.8 225.8 81.5L226.7 77.5L227.4 80.5C232.4 103.0 241.0 119.0 255.8 133.2C262.2 139.4 262.8 140.3 263.4 145.2C265.4 159.9 272.3 173.3 284.4 185.8L292.4 194.1L289.5 196.5C281.4 203.2 265.6 213.1 254.2 218.7C254.0 218.7 256.4 221.2 259.4 224.2L265.0 229.6L265.0 258.1L265.0 286.6L261.2 290.2C257.6 293.7 252.2 297.0 250.1 297.0C249.5 297.0 251.1 293.0 253.5 288.2ZM353.5 219.5C361.1 207.5 366.0 200.5 366.0 201.6C366.0 204.3 362.4 211.0 357.9 216.6C351.1 225.2 349.0 226.6 353.5 219.5ZM338.8 133.4C341.9 130.4 342.8 129.0 341.5 129.4C340.4 129.7 338.1 130.2 336.5 130.6C328.4 132.4 323.5 138.0 330.1 138.0C333.5 138.0 334.8 137.3 338.8 133.4Z"/></svg>
+    <div class="wm">G7<span>EXTERNAL</span></div>
+    <div class="build">V1.0 · BUILD 2610</div>
+    <div class="spacer"></div>
+    <div class="ro"><span><span class="dot"></span>UNDETECTED</span><span>FPS <b id="fps">144</b></span><span>PING <b id="ping">21</b> MS</span><span id="clock">00:00:00</span></div>
+  </header>
+
+  <nav class="nav" id="nav"></nav>
+
+  <main class="main">
+    <div class="tabs" id="tabs"></div>
+    <div class="content" id="content"></div>
+  </main>
+
+  <footer class="status">
+    <span>SESSION <b id="sess">00:00:00</b></span>
+    <span>ACTIVE <b id="activeCount">0</b></span>
+    <span>CONFIG <b id="cfgName">default</b></span>
+    <span class="sp"></span>
+    <span>INSERT — MENU</span><span>LMB — SELECT</span><span>ESC — CLOSE</span>
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const I={
+target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+dots:'<circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/>',
+users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2 .8 3 2.8 3 6"/>',
+folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+list:'<path d="M4 7h16M4 12h12M4 17h8"/>',
+play:'<path d="M7 4l12 8-12 8z"/>',
+gauge:'<circle cx="12" cy="12" r="9"/><path d="M12 12l4-4"/>',
+gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+search:'<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
+chev:'<path d="M6 9l6 6 6-6"/>',chevr:'<path d="M9 6l6 6-6 6"/>',
+check:'<path d="M4 12l5 5L20 7"/>',
+move:'<path d="M12 2v20M2 12h20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3"/>',
+gun:'<path d="M3 9h14l4-3v5h-4l-2 6H9l-1-4H3z"/>',plus:'<path d="M12 5v14M5 12h14"/>',
+refresh:'<path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/>',
+car:'<path d="M4 14l2-6h12l2 6v5H4z"/><circle cx="8" cy="17" r="1.5" fill="currentColor"/><circle cx="16" cy="17" r="1.5" fill="currentColor"/>',
+skull:'<path d="M12 3a7 7 0 0 0-7 7c0 2.5 1.3 4 3 5v3h8v-3c1.7-1 3-2.5 3-5a7 7 0 0 0-7-7z"/><circle cx="9.5" cy="11" r="1.3" fill="currentColor"/><circle cx="14.5" cy="11" r="1.3" fill="currentColor"/>',
+globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
+upload:'<path d="M12 16V4M6 10l6-6 6 6M4 20h16"/>',
+ray:'<path d="M3 12h11M14 12l-4-4M14 12l-4 4"/><circle cx="19" cy="12" r="2"/>',
+brush:'<path d="M14 4l6 6-9 9H5v-6z"/><path d="M12 6l6 6"/>',sparkle:'<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',
+pen:'<path d="M4 20l4-1 11-11-3-3L5 16z"/>',logo:'<path d="M7 20V4h6a4 4 0 0 1 0 8H9l6 8"/>',
+monitor:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+wifi:'<path d="M3 9a14 14 0 0 1 18 0M6.5 12.5a9 9 0 0 1 11 0M10 16a4 4 0 0 1 4 0"/><circle cx="12" cy="19" r="1" fill="currentColor"/>',
+sliders:'<path d="M4 7h10M18 7h2M4 12h4M12 12h8M4 17h12"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="17" r="2"/>',
+badge:'<path d="M12 3l3 3h4v4l3 3-3 3v4h-4l-3 3-3-3H5v-4l-3-3 3-3V6h4z"/>',
+power:'<path d="M12 3v9"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/>',
+music:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+heart:'<path d="M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z"/>'};
+const ic=(n,s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
+
+/* ---------- data ---------- */
+const T=(l,v=false,o={})=>({t:'toggle',l,v,...o});
+const SL=(l,v,max=100,o={})=>({t:'slider',l,v,max,min:o.min||0,step:o.step||1,w:o.w||''});
+const DD=(l,v,opts)=>({t:'select',l,v,opts});
+const K=(l,v='None')=>({t:'key',l,v});
+const B=(l,m,k='None')=>({t:'bind',l,m,k});
+const SW=(l,v)=>({t:'swatch',l,v});
+const BTN=(l,kind='ghost')=>({t:'button',l,kind});
+const SEG=(l,opts,v)=>({t:'seg',l,opts,v});
+const P=(title,icon,rows,o={})=>({title,icon,rows,...o});
+
+const PAGES={
+ Aimbot:{icon:'target',tabs:{
+  Aimbot:{icon:'target',cols:3,panels:[
+   P('General','target',[T('Aimbot'),K('Aimbot key'),DD('Type','Regular',['Regular','Memory','Linear']),SL('FOV',100,300),DD('Aim mode','Smooth',['Smooth','Snap','Hybrid']),DD('Aim bone','Head',['Head','Neck','Chest','Pelvis','Closest']),DD('Smoothing','Regular',['Regular','Exponential','Bezier']),SL('Smooth',50),T('Roll boost'),T('Curve'),T('Easing'),T('Aim wheels')]),
+   P('Targeting','users',[T('Require ADS'),T('Ignore NPCs'),T('Ignore knocked'),T('Target dead'),T('Sticky aim'),T('Only visible',true),DD('Vis mode','Raycasting',['Raycasting','Bone check','Both']),T('Set HP'),T('Dead check'),T('Prediction')]),
+   P('Range','ray',[T('Show FOV'),SL('Max distance',250,500,{w:'w80'}),T('Closest FOV')])]},
+  'Silent Aim':{icon:'ray',cols:3,panels:[
+   P('General','target',[T('Enable'),K('Silent aim key'),T('Visible only'),T('Target NPC'),T('Magic bullet'),DD('MB mode','Hold',['Hold','Toggle','Always']),T('Humanize'),T('Closest FOV'),T('Dynamic FOV'),T('Force driver'),T('Skip godmode'),T('Skip dead',true)]),
+   P('Settings','gear',[T('FOV circle'),SL('FOV',40,200),T('Oval FOV'),SL('Max distance',200,500),DD('Aim bone','Head',['Head','Neck','Chest','Closest'])]),
+   P('Miss chance','target',[SL('Miss chance',0,100,{w:'w80'})])]},
+  Triggerbot:{icon:'target',cols:2,panels:[
+   P('General','target',[T('Enable'),K('Triggerbot key'),T('Visible only'),T('Target NPC'),T('Ignore dead',true),T('Only head')]),
+   P('Tuning','sliders',[DD('Input mode','Virtual Mouse',['Virtual Mouse','Kernel','SendInput']),SL('Delay',0,500,{w:'w150'}),SL('Max distance',500,500,{w:'w150'}),SL('Min click',1,50,{min:1,w:'w150'}),SL('Max click',1,50,{min:1,w:'w150'})])]}}},
+ Visuals:{icon:'eye',tabs:{
+  ESP:{icon:'eye',cols:2,panels:[
+   P('General','eye',[BTN('Open ESP preview'),T('Enable'),K('ESP key'),DD('Mode','Toggle',['Toggle','Hold','Always']),T('Only visible'),SL('ESP distance',200,500),T('Show NPC',true),T('Show dead',true),T('Show local player'),T('Show observers'),T('Anti headshot detect')]),
+   P('Options','sliders',[T('Box'),T('Curved box'),T('Filled box'),T('Snaplines'),T('Skeleton',true,{more:1}),T('Head circle',false,{more:1}),T('Head dot'),T('Name',false,{more:1}),T('Distance',false,{more:1}),T('Health bar',false,{more:1}),T('Armor bar',false,{more:1})])]},
+  Raycasting:{icon:'ray',cols:1,panels:[
+   P('General','target',[T('Enabled',true,{badge:'New',desc:'Trace-line calculation for the visible check'}),T('Intersect vehicles',false,{badge:'Soon',dim:1,desc:'Visible check also tests against vehicles'}),T('Intersect peds',false,{badge:'New',desc:'Visible check also tests against peds'}),T('Intersect objects',false,{badge:'Soon',dim:1,desc:'Visible check also tests against props'}),T('Intersect water',false,{badge:'Soon',dim:1,desc:'Visible check also tests against rivers and sea'}),T('Intersect foliage',false,{badge:'Soon',dim:1,desc:'Visible check also tests against bushes and trees'})])]}}},
+ Misc:{icon:'dots',tabs:{
+  Defense:{icon:'check',cols:2,panels:[
+   P('Defense','check',[T('God mode'),T('No ragdoll'),T('Bubble'),T('Anti-teamkill'),T('Bubble popper'),T('Anti headshot'),T('Anti-HS killer')]),
+   P('Network','wifi',[T('Desync'),T('Fake lag'),T('Anti speedboost'),T('Solo session'),T('Force lag others'),T('Fake FPS'),T('Forced bubble')])]},
+  Movement:{icon:'move',cols:2,panels:[
+   P('Movement','move',[T('Noclip'),SL('Noclip speed',5,20,{min:1}),T('Fast run'),T('Super jump'),T('Infinite stamina'),T('Infinite combat roll'),T('No collision'),T('Invisible')]),
+   P('Teleport','ray',[BTN('Teleport to waypoint','primary'),BTN('Teleport back'),T('TPM (teleport to marker)'),K('Set waypoint key'),K('Teleport back key')])]},
+  Weapon:{icon:'gun',cols:2,panels:[
+   P('Weapon','gun',[T('No recoil'),T('No spread'),T('Rapid fire'),T('Infinite ammo'),T('No reload'),T('Explosive ammo'),DD('Impact','None',['None','Fire','Explosion','Water'])]),
+   P('Loadout','list',[BTN('Give all weapons','primary'),BTN('Max ammo'),BTN('Remove all weapons'),T('Auto give on spawn')])]},
+  Heal:{icon:'plus',cols:2,panels:[
+   P('Heal','plus',[BTN('Heal now','primary'),T('Auto heal'),SL('Heal below',40,100),T('Auto armor'),T('Revive on death')])]},
+  Vehicle:{icon:'car',cols:2,panels:[
+   P('Vehicle','car',[T('Vehicle god mode'),T('Rainbow paint'),T('Boost'),SL('Boost power',3,10,{min:1}),T('Horn boost'),T('Flying car'),T('No gravity')]),
+   P('Spawner','folder',[DD('Model','Adder',['Adder','Oppressor','Deluxo','Kuruma','Insurgent']),T('Spawn inside'),T('Max upgrades'),BTN('Spawn vehicle','primary'),BTN('Repair')])]},
+  Troll:{icon:'skull',cols:2,panels:[
+   P('Troll','skull',[T('Attach to player'),T('Ram with vehicle'),DD('Rain','None',['None','Cash','Vehicles','Peds']),T('Freeze target'),T('Cage'),T('Electrocute')]),
+   P('Blame','users',[T('Blame explosions'),DD('Blamed player','Nobody',['Nobody','Nearest','Random']),T('Fake kick'),T('Strip weapons')])]}}},
+ Players:{icon:'users',single:true,build:'players'},
+ Configs:{icon:'folder',tabs:{
+  Community:{icon:'globe',cols:1,build:'configs'},
+  Mine:{icon:'folder',cols:1,build:'mine'},
+  Upload:{icon:'upload',cols:1,panels:[P('Upload','upload',[{t:'text',l:'Config name',v:''},{t:'text',l:'Description',v:''},T('Public listing',true),T('Allow forks'),BTN('Upload current config','primary')])]}}},
+ Keybinds:{icon:'list',single:true,build:'keybinds'},
+ Music:{icon:'music',single:true,build:'music'},
+ Theme:{icon:'gauge',tabs:{
+  Colors:{icon:'brush',cols:2,panels:[
+   P('Palette','brush',[T('Gradient background'),SL('Shell opacity',100),SW('Accent','#FFFFFF'),SW('Glow','#FFFFFF'),SW('Left panel','#0F0F0F'),SW('Feature boxes','#161616'),SW('Gradient top','#1F1F1F')]),
+   P('Presets','sparkle',[SL('Menu scale',100,130,{min:70}),DD('Preset','Monochrome',['Monochrome','Inverse','High contrast']),BTN('Reset to defaults')])]},
+  Effects:{icon:'sparkle',cols:2,panels:[P('Effects','sparkle',[T('Blur behind menu'),T('Animations',true),SL('Animation speed',100,200,{min:25}),T('Scanlines'),T('Grain')])]},
+  Cover:{icon:'pen',cols:2,panels:[P('Cover','pen',[DD('Cover','None',['None','Eagle','Static','Custom']),SL('Cover opacity',40),T('Parallax')])]},
+  Logo:{icon:'logo',cols:2,panels:[P('Logo','logo',[DD('Mark','Eagle',['Eagle','Wordmark','Hidden']),SL('Logo size',100,150,{min:50}),T('Show in header',true)])]}}},
+ Settings:{icon:'gear',single:true,build:'settings'}};
+
+const CONFIGS=[['legit v2','spirtsy',842],['rage','g7dev',511],['esp only','null',377],['low fov','kadak',290],['default','G7',1203],['semi rage','breed',164]];
+const MINE=[['my legit','today'],['tournament','3 days ago'],['backup','2 weeks ago']];
+const PLAYERS=[['Haruki','GTA',12,'friend'],['n0va','GTA',41,''],['DeadPixel','GTA',77,'modder'],['kadak','GTA',130,'friend'],['Mojo','GTA',212,'']];
+const BINDS={Combat:[['Aimbot','N/A'],['Memory aim','N/A'],['Evade','N/A'],['Linear aim','N/A'],['Aim wheels','N/A'],['Silent aim','N/A'],['Magic bullet','HOLD'],['Triggerbot','N/A']],Movement:[['Noclip','TOGGLE'],['Fast run','TOGGLE'],['Infinite stamina','TOGGLE'],['Infinite combat roll','TOGGLE'],['No collision','TOGGLE'],['Invisible','TOGGLE'],['TPM','N/A'],['Set waypoint','N/A'],['Teleport back','N/A']],Defense:[['God mode','TOGGLE'],['No ragdoll','TOGGLE'],['Bubble','TOGGLE']],Weapon:[['No recoil','TOGGLE'],['No spread','TOGGLE'],['Rapid fire','HOLD']]};
+const TRACKS=[['Night Drive','Kavinsky','4:12'],['Hip To Be Square','Huey Lewis','4:06'],['Sussudio','Phil Collins','4:23'],['Walking on Sunshine','Katrina & The Waves','3:58']];
+
+/* ---------- state ---------- */
+let S={page:'Aimbot',tab:{},vals:{},binds:{},monitors:{3:'',1:'proj',2:'out'},cfg:'default',sel:null,track:0,playing:false,scale:100};
+try{const raw=localStorage.getItem('g7ext');if(raw)S={...S,...JSON.parse(raw)};}catch(e){}
+function save(){try{localStorage.setItem('g7ext',JSON.stringify(S));}catch(e){}}
+const key=(p,t,pan,l)=>`${p}/${t}/${pan}/${l}`;
+function val(k,def){return k in S.vals?S.vals[k]:def;}
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const h=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1600);}
+function closeMenus(){document.querySelectorAll('.dd .menu').forEach(m=>m.remove());}
+document.addEventListener('click',e=>{if(!e.target.closest('.dd'))closeMenus();if(!e.target.closest('.me')&&!e.target.closest('.pop'))closePop();});
+
+/* ---------- control renderers ---------- */
+function ctrl(r,k){
+ switch(r.t){
+  case 'toggle':return `<button class="tg ${val(k,r.v)?'on':''}" data-act="toggle" data-k="${h(k)}" role="switch" aria-checked="${val(k,r.v)}" aria-label="${h(r.l)}"></button>`;
+  case 'slider':{const v=val(k,r.v);const p=((v-r.min)/(r.max-r.min))*100;return `<div class="sl ${r.w}"><span class="v">${v}${r.unit||''}</span><input type="range" id="${h(k)}" min="${r.min}" max="${r.max}" step="${r.step}" value="${v}" style="--p:${p}%" data-act="slider" data-k="${h(k)}" aria-label="${h(r.l)}"></div>`;}
+  case 'select':return `<div class="dd" data-k="${h(k)}"><button data-act="dd" aria-haspopup="listbox">${h(val(k,r.v))}${ic('chev',13)}</button></div>`;
+  case 'key':{const v=val(k,r.v);return `<button class="key ${v!=='None'?'set':''}" data-act="key" data-k="${h(k)}">${h(v)}</button>`;}
+  case 'swatch':return `<button class="sw" data-act="swatch" data-k="${h(k)}" style="background:${h(val(k,r.v))}" aria-label="${h(r.l)}"></button>`;
+  case 'text':return `<input type="text" id="${h(k)}" class="key" style="min-width:160px;text-align:left" placeholder="…" value="${h(val(k,r.v))}" data-act="text" data-k="${h(k)}">`;
+ }
+ return '';
+}
+function rowHtml(r,k){
+ if(r.t==='button')return `<button class="btn ${r.kind==='primary'?'':'ghost'} wide" data-act="btn" data-l="${h(r.l)}">${h(r.l)}</button>`;
+ if(r.t==='seg')return `<div class="seg" data-k="${h(k)}">${r.opts.map(o=>`<button class="${val(k,r.v)===o?'on':''}" data-act="seg" data-v="${h(o)}">${h(o)}</button>`).join('')}</div>`;
+ const on=r.t==='toggle'&&val(k,r.v);
+ const badge=r.badge?`<span class="badge ${r.badge==='Soon'?'soon':''}">${r.badge}</span>`:'';
+ return `<div class="row ${on?'on':''} ${r.dim?'dim':''}" data-label="${h(r.l)}"><div class="lab"><div class="lt">${h(r.l)}${badge}</div>${r.desc?`<div class="sub">${h(r.desc)}</div>`:''}</div><div class="ctl">${r.more?`<span class="more">${ic('dots',14)}</span>`:''}${ctrl(r,k)}</div></div>`;
+}
+function panelHtml(p,page,tab){
+ const rows=p.rows.map(r=>rowHtml(r,key(page,tab,p.title,r.l))).join('');
+ return `<section class="panel"><div class="ph">${ic(p.icon,14)}<span>${h(p.title).toUpperCase()}</span><span class="cnt">${p.rows.length}</span></div><div class="pb">${rows}</div></section>`;
+}
+
+/* ---------- page builders ---------- */
+const builders={
+ players(){
+  const q=(S.pq||'').toLowerCase();
+  const list=PLAYERS.map((p,i)=>`<button class="${S.sel===i?'sel':''} ${p[0].toLowerCase().includes(q)?'':'hide'}" data-act="selp" data-i="${i}">${ic('users',14)}<span>${h(p[0])}</span>${p[3]?`<span class="badge ${p[3]==='modder'?'':'soon'}">${p[3].toUpperCase()}</span>`:''}<span class="d">${p[2]} M</span></button>`).join('');
+  const sel=S.sel!=null?PLAYERS[S.sel]:null;
+  const detail=sel?`<div class="detail"><div class="kv"><span>Name</span><b>${h(sel[0])}</b></div><div class="kv"><span>Distance</span><b>${sel[2]} m</b></div><div class="kv"><span>Session</span><b>${h(sel[1])}</b></div><div class="kv"><span>Health</span><b>100 / 100</b></div><div class="kv"><span>Flags</span><b>${sel[3]?sel[3].toUpperCase():'NONE'}</b></div><div class="acts"><button class="btn" data-act="btn" data-l="Teleport to ${h(sel[0])}">Teleport</button><button class="btn ghost" data-act="btn" data-l="Spectate ${h(sel[0])}">Spectate</button><button class="btn ghost" data-act="btn" data-l="${sel[3]==='friend'?'Removed friend':'Added friend'}: ${h(sel[0])}">${sel[3]==='friend'?'Unfriend':'Add friend'}</button></div></div>`:`<div class="empty tall">Select a player</div>`;
+  return `<div class="grid c2"><section class="panel"><div class="ph">${ic('users',14)}<span>NEARBY PLAYERS</span><span class="cnt">${PLAYERS.length}</span></div><div class="pb"><div class="psearch">${ic('search',14)}<input id="pq" type="text" placeholder="Search players" value="${h(S.pq||'')}" data-act="pq"></div><div class="plist">${list}</div></div></section>
+  <section class="panel"><div class="ph">${ic('users',14)}<span>DETAIL</span></div><div class="pb">${detail}</div></section></div>
+  <div class="grid c1">${panelHtml(P('Friend marker','move',[T('Draw marker'),{t:'label',l:'FRIENDS LIST'},DD('Sort by','Distance',['Distance','Name','Session time'])]),'Players','Players')}</div>`;
+ },
+ configs(){
+  const q=(S.cq||'').toLowerCase();
+  const cards=CONFIGS.map(c=>`<div class="card ${c[0].includes(q)||c[1].includes(q)?'':'hide'}"><div class="bar"></div><div class="ct"><b>${h(c[0])}</b><span>BY ${h(c[1]).toUpperCase()} · ${c[2]} LOADS</span></div><button class="btn" data-act="load" data-c="${h(c[0])}">${S.cfg===c[0]?'Loaded':'Load'}</button></div>`).join('');
+  return `<div class="grid c1"><section class="panel"><div class="ph">${ic('globe',14)}<span>COMMUNITY</span><span class="cnt">${CONFIGS.length}</span></div><div class="pb">${rowHtml(T('Auto load last session'),key('Configs','Community','Community','Auto load last session'))}<div class="psearch">${ic('search',14)}<input id="cq" type="text" placeholder="Search community configs" value="${h(S.cq||'')}" data-act="cq"></div><div class="cards">${cards}</div></div></section></div>`;
+ },
+ mine(){
+  const cards=MINE.map(c=>`<div class="card"><div class="bar"></div><div class="ct"><b>${h(c[0])}</b><span>SAVED ${h(c[1]).toUpperCase()}</span></div><button class="btn ghost" data-act="btn" data-l="Saved ${h(c[0])}">Save</button><button class="btn" data-act="load" data-c="${h(c[0])}">${S.cfg===c[0]?'Loaded':'Load'}</button></div>`).join('');
+  return `<div class="grid c1"><section class="panel"><div class="ph">${ic('folder',14)}<span>MINE</span><span class="cnt">${MINE.length}</span></div><div class="pb"><div class="cards">${cards}</div><button class="btn ghost wide" data-act="btn" data-l="Created new config">New config from current settings</button></div></section></div>`;
+ },
+ keybinds(){
+  const pan=(name,icon)=>`<section class="panel"><div class="ph">${ic(icon,14)}<span>${name.toUpperCase()}</span><span class="cnt">${BINDS[name].length}</span></div><div class="pb">${BINDS[name].map(([l,m])=>{const k='bind/'+name+'/'+l;const b=S.binds[k]||{m,k:'None'};return `<div class="row ${b.k!=='None'?'on':''}"><div class="lab"><div class="lt">${h(l)}</div></div><div class="ctl"><button class="chip ${b.m==='N/A'?'':b.m}" data-act="chip" data-k="${h(k)}">${b.m}</button><button class="key ${b.k!=='None'?'set':''}" data-act="bindkey" data-k="${h(k)}">${h(b.k)}</button></div></div>`;}).join('')}</div></section>`;
+  const active=Object.values(S.binds).filter(b=>b.k!=='None').length;
+  return `<div class="grid c1"><section class="panel"><div class="pb" style="display:flex;align-items:center;justify-content:space-between;min-height:48px"><span style="color:var(--ink-2);font-weight:500">Active keybinds</span><span class="mono" style="font-size:11px">${active} BOUND · CLICK A CHIP TO CYCLE MODE · CLICK A KEY TO REBIND</span></div></section></div>
+  <div class="grid c2">${pan('Combat','target')}${pan('Movement','move')}${pan('Defense','check')}${pan('Weapon','gun')}</div>`;
+ },
+ music(){
+  const t=TRACKS[S.track];
+  const list=TRACKS.map((tr,i)=>`<button class="${i===S.track?'sel':''}" data-act="track" data-i="${i}">${ic(i===S.track&&S.playing?'play':'music',14)}<span>${h(tr[0])}</span><span class="d">${h(tr[1]).toUpperCase()} · ${tr[2]}</span></button>`).join('');
+  return `<div class="grid c2"><section class="panel"><div class="ph">${ic('music',14)}<span>NOW PLAYING</span></div><div class="pb"><div class="sub2"><b>${h(t[0])}</b><span>${h(t[1])} · ${t[2]}</span></div><div class="seg"><button data-act="prev">Prev</button><button class="${S.playing?'on':''}" data-act="playpause">${S.playing?'Pause':'Play'}</button><button data-act="next">Next</button></div>${rowHtml(SL('Volume',60),key('Music','Music','Now playing','Volume'))}${rowHtml(T('Loop'),key('Music','Music','Now playing','Loop'))}${rowHtml(T('Shuffle'),key('Music','Music','Now playing','Shuffle'))}</div></section>
+  <section class="panel"><div class="ph">${ic('list',14)}<span>PLAYLIST</span><span class="cnt">${TRACKS.length}</span></div><div class="pb"><div class="plist">${list}</div></div></section></div>`;
+ },
+ settings(){
+  const mode=S.dmode||'proj';const cls={proj:'m-proj',out:'m-out',in:'m-in','':''};
+  const mon=(n,prim)=>`<button class="mon ${cls[S.monitors[n]||'']}" data-act="mon" data-n="${n}"><b>${n}</b><span>Generic PnP</span><span>1920×1080</span>${prim?'<em>PRIMARY</em>':''}</button>`;
+  const left=panelHtml(P('Panel','sliders',[T('Feature notifications',true),T('Streamproof'),T('Menu crosshair',false,{more:1}),T('VSync',true),T('Keybind list'),T('Full-screen exclusive',true),T('Auto inject',true),T('Auto-load last session'),T('Menu outline'),SL('Menu scale',100,130,{min:70}),K('Menu keybind','Insert')]),'Settings','Settings');
+  const upd=panelHtml(P('Updates','refresh',[T('Auto-update',true),BTN('Check for updates')]),'Settings','Settings');
+  const share=`<section class="panel"><div class="ph">${ic('monitor',14)}<span>SCREEN SHARING</span></div><div class="pb">${rowHtml(SEG('Share','Off|Projector|DXGI Projector'.split('|'),'Off'),key('Settings','Settings','Screen sharing','Share'))}${rowHtml(SL('Projector FPS',95,240,{min:30}),key('Settings','Settings','Screen sharing','Projector FPS'))}<div class="sub2"><b>Display layout</b><span>Pick a mode, then click a screen.</span></div><div class="seg">${[['proj','Projector'],['out','Mirror out'],['in','Mirror in']].map(([v,l])=>`<button class="${mode===v?'on':''}" data-act="dmode" data-v="${v}">${l}</button>`).join('')}</div><div class="layout">${mon(3)}${mon(1,true)}${mon(2)}</div><div class="legend"><span><u style="background:var(--ink)"></u>Projector</span><span><u style="background:var(--ink-2)"></u>Mirror out</span><span><u style="background:#4a4a4a"></u>Mirror in</span></div></div></section>`;
+  return `<div class="grid c2">${left}<div style="display:grid;gap:14px">${upd}${share}</div></div>`;
+ }
+};
+
+/* ---------- render ---------- */
+function renderNav(){
+ const groups=[['MAIN',['Aimbot','Visuals','Misc']],['SUPPORT',['Players','Configs','Keybinds']],['OTHER',['Music','Theme','Settings']]];
+ const act=p=>countActive(p);
+ $('#nav').innerHTML=`<div class="search">${ic('search',14)}<input id="gq" type="text" placeholder="Search functions" value="${h(S.gq||'')}" data-act="gq" autocomplete="off"><kbd>/</kbd></div>`+
+  groups.map(([g,items])=>`<div class="sec">// ${g}</div>`+items.map(p=>`<button class="item ${S.page===p&&!S.gq?'on':''}" data-act="page" data-p="${p}">${ic(PAGES[p].icon,16)}<span>${p}</span>${act(p)?`<span class="n">${act(p)}</span>`:''}</button>`).join('')).join('')+
+  `<div class="grow"></div><button class="me" data-act="me"><img src="data:image/jpeg;base64,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" alt="Profile picture"><span class="who"><b>spirtsy</b><i>LIFETIME</i></span><span class="st"></span></button>`;
+}
+function countActive(p){let n=0;for(const k in S.vals){if(k.startsWith(p+'/')&&S.vals[k]===true)n++;}return n;}
+function renderTabs(){
+ const pg=PAGES[S.page];
+ if(S.gq){$('#tabs').innerHTML=`<span class="crumb">SEARCH</span><span class="tab on">${ic('search',14)}<span>“${h(S.gq)}”</span></span>`;return;}
+ if(pg.single){$('#tabs').innerHTML=`<span class="crumb">${S.page.toUpperCase()}</span>`;return;}
+ const cur=S.tab[S.page]||Object.keys(pg.tabs)[0];
+ $('#tabs').innerHTML=`<span class="crumb">${S.page.toUpperCase()} /</span>`+Object.entries(pg.tabs).map(([t,d])=>`<button class="tab ${t===cur?'on':''}" data-act="tab" data-t="${h(t)}">${ic(d.icon,14)}<span>${h(t)}</span></button>`).join('');
+}
+function renderContent(){
+ const c=$('#content');
+ if(S.gq){c.innerHTML=searchHtml(S.gq);return;}
+ const pg=PAGES[S.page];
+ if(pg.single){c.innerHTML=builders[pg.build]();return;}
+ const tname=S.tab[S.page]||Object.keys(pg.tabs)[0];const tab=pg.tabs[tname];
+ if(tab.build){c.innerHTML=builders[tab.build]();return;}
+ c.innerHTML=`<div class="grid c${tab.cols}">${tab.panels.map(p=>panelHtml(p,S.page,tname)).join('')}</div>`;
+}
+function searchHtml(q){
+ const ql=q.toLowerCase();const hits=[];
+ for(const [p,pg] of Object.entries(PAGES)){if(!pg.tabs)continue;for(const [t,tab] of Object.entries(pg.tabs)){if(!tab.panels)continue;for(const pan of tab.panels)for(const r of pan.rows)if(r.l&&r.l.toLowerCase().includes(ql))hits.push({p,t,pan:pan.title,r});}}
+ if(!hits.length)return `<div class="panel"><div class="empty tall">No function matches “${h(q)}”</div></div>`;
+ return `<section class="panel results"><div class="ph">${ic('search',14)}<span>RESULTS</span><span class="cnt">${hits.length}</span></div><div class="pb">${hits.slice(0,40).map(x=>`<button class="hit" data-act="goto" data-p="${x.p}" data-t="${h(x.t)}" data-l="${h(x.r.l)}">${ic(PAGES[x.p].icon,14)}<span>${h(x.r.l)}</span><span class="path">${x.p.toUpperCase()} / ${h(x.t).toUpperCase()} / ${h(x.pan).toUpperCase()}</span></button>`).join('')}</div></section>`;
+}
+function renderStatus(){let n=0;for(const k in S.vals)if(S.vals[k]===true)n++;$('#activeCount').textContent=n;$('#cfgName').textContent=S.cfg;}
+function render(all){if(all!==false)renderNav();renderTabs();renderContent();renderStatus();applyScale();save();}
+function applyScale(){const s=val(key('Theme','Colors','Presets','Menu scale'),100);document.documentElement.style.setProperty('--zoom',s/100);$('#app').style.zoom=s/100;}
+
+/* ---------- popover ---------- */
+function closePop(){const p=$('.pop');if(p)p.remove();}
+function openPop(){closePop();const me=$('.me');const pop=document.createElement('div');pop.className='pop';
+ pop.innerHTML=`<div class="ph">SPIRTSY · LIFETIME</div>`+[['Language','globe','English'],['Scale','move',`${val(key('Theme','Colors','Presets','Menu scale'),100)}%`],['Menu style','sliders','Mono']].map(([l,i,v])=>`<button class="pr" data-act="poprow" data-l="${l}">${ic(i,14)}<span>${l}</span><span class="v">${v}</span>${ic('chevr',12)}</button>`).join('')+
+ `<div class="pr">${ic('badge',14)}<span>Badge</span><span class="v"></span>${ctrl(T('Badge',true),'me/badge')}</div><button class="pr danger" data-act="unload">${ic('power',14)}<span>Unload</span>${ic('chevr',12)}</button>`;
+ me.parentElement.appendChild(pop);}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+ const el=e.target.closest('[data-act]');if(!el)return;const a=el.dataset.act;
+ if(a==='page'){S.page=el.dataset.p;S.gq='';render();return;}
+ if(a==='tab'){S.tab[S.page]=el.dataset.t;render(false);return;}
+ if(a==='goto'){S.gq='';S.page=el.dataset.p;S.tab[S.page]=el.dataset.t;render();const row=[...document.querySelectorAll('.row')].find(r=>r.dataset.label===el.dataset.l);if(row){row.scrollIntoView({block:'center'});row.style.outline='1px solid var(--ink)';setTimeout(()=>row.style.outline='',1200);}return;}
+ if(a==='toggle'){const k=el.dataset.k;S.vals[k]=!val(k,el.classList.contains('on'));el.classList.toggle('on',S.vals[k]);el.setAttribute('aria-checked',S.vals[k]);el.closest('.row')?.classList.toggle('on',S.vals[k]);renderStatus();renderNav();save();return;}
+ if(a==='dd'){e.stopPropagation();const dd=el.parentElement;if(dd.querySelector('.menu')){closeMenus();return;}closeMenus();const k=dd.dataset.k;const r=findRow(k);const cur=val(k,r?r.v:'');const m=document.createElement('div');m.className='menu';m.setAttribute('role','listbox');m.innerHTML=(r?r.opts:[]).map(o=>`<button class="${o===cur?'sel':''}" data-act="ddpick" data-v="${h(o)}" role="option">${h(o)}</button>`).join('');dd.appendChild(m);return;}
+ if(a==='ddpick'){const dd=el.closest('.dd');S.vals[dd.dataset.k]=el.dataset.v;dd.querySelector('button').innerHTML=h(el.dataset.v)+ic('chev',13);closeMenus();save();return;}
+ if(a==='key'||a==='bindkey'){listen(el,a);return;}
+ if(a==='chip'){const k=el.dataset.k;const b=S.binds[k]||{m:el.textContent.trim(),k:'None'};const order=['N/A','HOLD','TOGGLE'];b.m=order[(order.indexOf(b.m)+1)%3];S.binds[k]=b;el.className='chip '+(b.m==='N/A'?'':b.m);el.textContent=b.m;save();return;}
+ if(a==='swatch'){const k=el.dataset.k;const steps=['#FFFFFF','#A3A3A3','#5C5C5C','#2E2E2E','#161616','#000000'];const cur=(val(k,el.style.background)||'').toUpperCase();const i=steps.findIndex(s=>cur.includes(s.toLowerCase().slice(1))||cur===s);S.vals[k]=steps[(i+1)%steps.length];el.style.background=S.vals[k];save();return;}
+ if(a==='seg'){const k=el.parentElement.dataset.k;S.vals[k]=el.dataset.v;[...el.parentElement.children].forEach(b=>b.classList.toggle('on',b===el));save();return;}
+ if(a==='btn'){const l=el.dataset.l;if(l==='Reset to defaults'){S.vals={};S.binds={};toast('SETTINGS RESET');render();return;}toast(l.toUpperCase());return;}
+ if(a==='load'){S.cfg=el.dataset.c;toast('LOADED '+S.cfg.toUpperCase());render(false);return;}
+ if(a==='selp'){S.sel=+el.dataset.i;render(false);return;}
+ if(a==='track'){S.track=+el.dataset.i;S.playing=true;render(false);return;}
+ if(a==='playpause'){S.playing=!S.playing;render(false);return;}
+ if(a==='prev'||a==='next'){S.track=(S.track+(a==='next'?1:TRACKS.length-1))%TRACKS.length;S.playing=true;render(false);return;}
+ if(a==='dmode'){S.dmode=el.dataset.v;render(false);return;}
+ if(a==='mon'){const n=el.dataset.n;const m=S.dmode||'proj';S.monitors[n]=S.monitors[n]===m?'':m;render(false);return;}
+ if(a==='me'){e.stopPropagation();$('.pop')?closePop():openPop();return;}
+ if(a==='poprow'){toast(el.dataset.l.toUpperCase()+' — COMING SOON');return;}
+ if(a==='unload'){closePop();toast('G7EXTERNAL UNLOADED');document.querySelector('.app').style.opacity='.35';setTimeout(()=>document.querySelector('.app').style.opacity='',900);return;}
+});
+document.addEventListener('input',e=>{
+ const el=e.target;const a=el.dataset.act;if(!a)return;
+ if(a==='slider'){const v=+el.value;S.vals[el.dataset.k]=v;el.style.setProperty('--p',((v-el.min)/(el.max-el.min))*100+'%');el.parentElement.querySelector('.v').textContent=v;if(el.dataset.k.endsWith('Menu scale'))applyScale();save();return;}
+ if(a==='gq'){S.gq=el.value.trim();renderTabs();renderContent();document.querySelectorAll('.nav .item').forEach(b=>b.classList.toggle('on',!S.gq&&b.dataset.p===S.page));return;}
+ if(a==='pq'){S.pq=el.value;document.querySelectorAll('.plist button').forEach((b,i)=>b.classList.toggle('hide',!PLAYERS[i][0].toLowerCase().includes(el.value.toLowerCase())));return;}
+ if(a==='cq'){S.cq=el.value;const q=el.value.toLowerCase();document.querySelectorAll('.card').forEach((c,i)=>{const cf=CONFIGS[i];c.classList.toggle('hide',!(cf[0].includes(q)||cf[1].includes(q)));});return;}
+ if(a==='text'){S.vals[el.dataset.k]=el.value;save();}
+});
+function findRow(k){const [p,t,pan,l]=k.split('/');const tab=PAGES[p]&&PAGES[p].tabs&&PAGES[p].tabs[t];const panels=tab?tab.panels:null;if(panels){for(const pn of panels)if(pn.title===pan)return pn.rows.find(r=>r.l===l);}
+ if(p==='Players')return DD('Sort by','Distance',['Distance','Name','Session time']);return null;}
+let listening=null;
+function listen(el,kind){if(listening){listening.el.classList.remove('listen');listening.el.textContent=listening.prev;}listening={el,kind,k:el.dataset.k,prev:el.textContent};el.classList.add('listen');el.textContent='PRESS…';}
+document.addEventListener('keydown',e=>{
+ if(listening){e.preventDefault();const {el,kind,k,prev}=listening;listening=null;el.classList.remove('listen');
+  let name=e.key==='Escape'?'None':e.key===' '?'Space':e.key.length===1?e.key.toUpperCase():e.key.replace('Arrow','');
+  if(e.key==='Escape')name='None';
+  el.textContent=name;el.classList.toggle('set',name!=='None');
+  if(kind==='bindkey'){const b=S.binds[k]||{m:'N/A',k:'None'};b.k=name;S.binds[k]=b;el.closest('.row')?.classList.toggle('on',name!=='None');}else S.vals[k]=name;
+  save();return;}
+ if(e.key==='/'&&!e.target.matches('input')){e.preventDefault();$('#gq').focus();}
+ if(e.key==='Escape'){if(e.target.matches('input')){e.target.blur();}closeMenus();closePop();}
+});
+document.addEventListener('mousedown',e=>{if(listening&&e.target!==listening.el){const {el,k,kind}=listening;listening=null;el.classList.remove('listen');const name='MOUSE'+(e.button+1);el.textContent=name;el.classList.add('set');if(kind==='bindkey'){const b=S.binds[k]||{m:'N/A',k:'None'};b.k=name;S.binds[k]=b;}else S.vals[k]=name;save();e.preventDefault();}});
+document.addEventListener('contextmenu',e=>{if(listening)e.preventDefault();});
+
+/* ---------- ambient readouts ---------- */
+const t0=Date.now();
+setInterval(()=>{const d=new Date();$('#clock').textContent=d.toTimeString().slice(0,8);const s=Math.floor((Date.now()-t0)/1000);$('#sess').textContent=[s/3600,s/60%60,s%60].map(n=>String(Math.floor(n)).padStart(2,'0')).join(':');$('#fps').textContent=140+Math.floor(Math.random()*5);$('#ping').textContent=19+Math.floor(Math.random()*4);},1000);
+render();
+</script>
+</body>
+</html>

@@ -61,3 +61,16 @@ paint styles `G7/…`) and the type scale.
 
 Typography is Inter: Semi Bold 20 for section titles, Medium 14 for row labels, Regular 12
 for descriptions and Medium 10 with 1.2 px tracking for overlines.
+
+## Interactive version (v2)
+
+`interactive/g7external-menu.html` is a working, clickable build of the menu. Open it in any
+browser. Everything is live: toggles, sliders, dropdowns, keybind capture (click a key button,
+press a key or mouse button, Esc clears), keybind mode chips (click to cycle N/A → Hold → Toggle),
+the sidebar search (`/` to focus, results jump to the setting), the Players and Configs searches,
+config loading, the music player, the display-layout picker and the account popover on the
+profile picture. State is remembered in the browser between visits.
+
+This version drops the rounded "mojo" shell for a hard-edged monochrome layout on a pure black
+background: header bar with the eagle mark and build tag, left rail with a white active marker,
+underlined tabs, hairline panels, mono-spaced labels and a status strip.
